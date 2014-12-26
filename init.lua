@@ -261,6 +261,12 @@ for i in ipairs(sides) do
 			walkable = true,
 			use_texture_alpha = texalpha,
 			selection_box = selectboxes_bottom,
+			on_timer = function(pos, elapsed)
+				if not getClosed(pos) then
+					local node = minetest.get_node(pos)
+					autoclose_doors.flip_door(pos, node, nil, doorname, side, false)
+				end
+			end,
 			node_box = {
 				type = "fixed",
 				fixed = nodeboxes_bottom
@@ -302,17 +308,6 @@ for i in ipairs(sides) do
                     end
                 }
             }
-		})
-
-		minetest.register_abm({
-			nodenames = {"autoclose_doors:"..doorname.."_bottom_"..side},
-			chance = 1,
-			interval = 10,
-			action = function(pos, node, active_object_count, active_object_count_wider)
-				if not getClosed(pos) then
-					autoclose_doors.flip_door(pos, node, nil, doorname, side, false)
-				end
-			end
 		})
 	end
 end
@@ -429,5 +424,10 @@ function autoclose_doors.flip_door(pos, node, player, name, side, isClosed)
 	minetest.add_node({x=pos.x, y=pos.y+1, z=pos.z}, { name =  "autoclose_doors:"..name.."_top_"..rside, param2=nfdir})
 
     addDoorNode(pos,{ name = "autoclose_doors:"..name.."_bottom_"..rside, param2=nfdir },isClosed)
+
+	local timer = minetest.get_node_timer(pos)
+	if not isClosed then
+		timer:start(10)
+	end
 end
 
