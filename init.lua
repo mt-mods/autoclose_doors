@@ -31,7 +31,6 @@ dofile(modpath.."/door_models.lua")
 
 local function getClosed(pos)
 	local c = minetest.get_meta(pos):get_string("closed")
-	print(dump(c))
 	if c == "true" then
 		return true
 	else
