@@ -27,7 +27,19 @@ end
 local modpath = minetest.get_modpath("autoclose_doors")
 dofile(modpath.."/door_models.lua")
 
--- the good stuff!
+-- check if a door is marked as closed
+
+local function getClosed(pos)
+	local c = minetest.get_meta(pos):get_string("closed")
+	print(dump(c))
+	if c == "true" then
+		return true
+	else
+		return false
+	end
+end
+
+-- register the nodes
 
 local sides = {"left", "right"}
 local rsides = {"right", "left"}
@@ -150,13 +162,13 @@ for i in ipairs(sides) do
             mesecons = {
                 effector = {
                     action_on = function(pos,node)
-                        local isClosed = getClosed(pos)
+						local isClosed = getClosed(pos)
                         if isClosed then
                             autoclose_doors.flip_door(pos,node,nil,doorname,side,isClosed)
                         end
                     end,
                     action_off = function(pos,node)
-                        local isClosed = getClosed(pos)
+						local isClosed = getClosed(pos)
                         if not isClosed then
                             autoclose_doors.flip_door(pos,node,nil,doorname,side,isClosed)
                         end
@@ -229,9 +241,9 @@ function autoclose_doors.place_door(itemstack, placer, pointed_thing, name, forc
 			end
 
             local def = { name = "autoclose_doors:"..name.."_bottom_"..side, param2=fdir}
-            addDoorNode(pos1, def, true)
+		    minetest.add_node(pos1, { name = "autoclose_doors:"..name.."_bottom_"..side, param2=fdir })
 			minetest.add_node(pos2, { name = "autoclose_doors:"..name.."_top_"..side, param2=fdir})
-			minetest.get_meta(pos1):set_string('closed', true)
+			minetest.get_meta(pos1):set_string("closed", "true")
 			if not autoclose_doors.expect_infinite_stacks then
 				itemstack:take_item()
 				return itemstack
@@ -247,7 +259,7 @@ end
 function autoclose_doors.flip_door(pos, node, player, name, side, isClosed)
 
 	if isClosed == nil then
-		isClosed = minetest.get_meta(pos):get_string('closed') or false
+		isClosed = getClosed(pos)
 	end
 
     -- this is where we swap the isClosed status!
@@ -280,12 +292,13 @@ function autoclose_doors.flip_door(pos, node, player, name, side, isClosed)
 	})
     -- XXX: does the top half have to remember open/closed too?
 	minetest.add_node({x=pos.x, y=pos.y+1, z=pos.z}, { name =  "autoclose_doors:"..name.."_top_"..rside, param2=nfdir})
+    minetest.add_node(pos, { name = "autoclose_doors:"..name.."_bottom_"..rside, param2=nfdir })
 
-    addDoorNode(pos,{ name = "autoclose_doors:"..name.."_bottom_"..rside, param2=nfdir },isClosed)
-
-	minetest.get_meta(pos):set_string('closed', isClosed)
-	if not isClosed then
+	if isClosed then
+		minetest.get_meta(pos):set_string("closed", "true")
+	else
 		minetest.get_node_timer(pos):start(10)
+		minetest.get_meta(pos):set_string("closed", "false")
 	end
 end
 
