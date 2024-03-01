@@ -48,47 +48,47 @@ for i in ipairs(sides) do
 	local rside = rsides[i]
 
 	for j in ipairs(autoclose_doors.door_models) do
-		local doorname =			autoclose_doors.door_models[j][1]
-		local doordesc =			autoclose_doors.door_models[j][2]
+		local doorname =		autoclose_doors.door_models[j][1]
+		local doordesc =		autoclose_doors.door_models[j][2]
 		local nodeboxes_top =		autoclose_doors.door_models[j][5]
 		local nodeboxes_bottom =	autoclose_doors.door_models[j][6]
 		local texalpha = false
 
 		if side == "left" then
-			nodeboxes_top =			autoclose_doors.door_models[j][3]
-			nodeboxes_bottom =		autoclose_doors.door_models[j][4]
+			nodeboxes_top =		autoclose_doors.door_models[j][3]
+			nodeboxes_bottom =	autoclose_doors.door_models[j][4]
 		end
 
 		local lower_top_side = "autoclose_doors_"..doorname.."_tb.png"
 		local upper_bottom_side = "autoclose_doors_"..doorname.."_tb.png"
 
 		local tiles_upper = {
-				"autoclose_doors_"..doorname.."_tb.png",
-				upper_bottom_side,
-				"autoclose_doors_"..doorname.."_lrt.png",
-				"autoclose_doors_"..doorname.."_lrt.png",
-				"autoclose_doors_"..doorname.."_"..rside.."_top.png",
-				"autoclose_doors_"..doorname.."_"..side.."_top.png",
-				}
+			"autoclose_doors_"..doorname.."_tb.png",
+			upper_bottom_side,
+			"autoclose_doors_"..doorname.."_lrt.png",
+			"autoclose_doors_"..doorname.."_lrt.png",
+			"autoclose_doors_"..doorname.."_"..rside.."_top.png",
+			"autoclose_doors_"..doorname.."_"..side.."_top.png",
+		}
 
 		local tiles_lower = {
-				lower_top_side,
-				"autoclose_doors_"..doorname.."_tb.png",
-				"autoclose_doors_"..doorname.."_lrb.png",
-				"autoclose_doors_"..doorname.."_lrb.png",
-				"autoclose_doors_"..doorname.."_"..rside.."_bottom.png",
-				"autoclose_doors_"..doorname.."_"..side.."_bottom.png",
-				}
+			lower_top_side,
+			"autoclose_doors_"..doorname.."_tb.png",
+			"autoclose_doors_"..doorname.."_lrb.png",
+			"autoclose_doors_"..doorname.."_lrb.png",
+			"autoclose_doors_"..doorname.."_"..rside.."_bottom.png",
+			"autoclose_doors_"..doorname.."_"..side.."_bottom.png",
+		}
 
 		local selectboxes_top = {
-				type = "fixed",
-				fixed = { -0.5, -1.5, 6/16, 0.5, 0.5, 8/16}
-			}
+			type = "fixed",
+			fixed = { -0.5, -1.5, 6/16, 0.5, 0.5, 8/16}
+		}
 
 		local selectboxes_bottom = {
-				type = "fixed",
-				fixed = { -0.5, -0.5, 6/16, 0.5, 1.5, 8/16}
-			}
+			type = "fixed",
+			fixed = { -0.5, -0.5, 6/16, 0.5, 1.5, 8/16}
+		}
 
 		minetest.register_node("autoclose_doors:"..doorname.."_top_"..side, {
 			description = doordesc.." "..S("(Top Half, %s-opening)"):format(side),
@@ -97,6 +97,7 @@ for i in ipairs(sides) do
 			paramtype = "light",
 			paramtype2 = "facedir",
 			groups = {snappy=3, not_in_creative_inventory=1},
+			is_ground_content = false,
 			sounds = default.node_sound_wood_defaults(),
 			walkable = true,
 			use_texture_alpha = texalpha,
@@ -130,6 +131,7 @@ for i in ipairs(sides) do
 			paramtype = "light",
 			paramtype2 = "facedir",
 			groups = dgroups,
+			is_ground_content = false,
 			sounds = default.node_sound_wood_defaults(),
 			walkable = true,
 			use_texture_alpha = texalpha,
@@ -158,22 +160,22 @@ for i in ipairs(sides) do
 				autoclose_doors.flip_door(pos, node, clicker, doorname, side)
 			end,
 			drop = "autoclose_doors:"..doorname.."_bottom_left",
-            mesecons = {
-                effector = {
-                    action_on = function(pos,node)
+			mesecons = {
+				effector = {
+					action_on = function(pos,node)
 						local isClosed = getClosed(pos)
-                        if isClosed then
-                            autoclose_doors.flip_door(pos,node,nil,doorname,side,isClosed)
-                        end
-                    end,
-                    action_off = function(pos,node)
+						if isClosed then
+							autoclose_doors.flip_door(pos,node,nil,doorname,side,isClosed)
+						end
+					end,
+					action_off = function(pos,node)
 						local isClosed = getClosed(pos)
-                        if not isClosed then
-                            autoclose_doors.flip_door(pos,node,nil,doorname,side,isClosed)
-                        end
-                    end
-                }
-            }
+						if not isClosed then
+							autoclose_doors.flip_door(pos,node,nil,doorname,side,isClosed)
+						end
+					end
+				}
+			}
 		})
 	end
 end
@@ -239,8 +241,8 @@ function autoclose_doors.place_door(itemstack, placer, pointed_thing, name, forc
 				side = "right"
 			end
 
-            local def = { name = "autoclose_doors:"..name.."_bottom_"..side, param2=fdir}
-		    minetest.add_node(pos1, { name = "autoclose_doors:"..name.."_bottom_"..side, param2=fdir })
+			local def = { name = "autoclose_doors:"..name.."_bottom_"..side, param2=fdir}
+			minetest.add_node(pos1, { name = "autoclose_doors:"..name.."_bottom_"..side, param2=fdir })
 			minetest.add_node(pos2, { name = "autoclose_doors:"..name.."_top_"..side, param2=fdir})
 			minetest.get_meta(pos1):set_string("closed", "true")
 			if not autoclose_doors.expect_infinite_stacks then
@@ -261,10 +263,10 @@ function autoclose_doors.flip_door(pos, node, player, name, side, isClosed)
 		isClosed = getClosed(pos)
 	end
 
-    -- this is where we swap the isClosed status!
-    -- i.e. if isClosed, we're adding an open door
-    -- and if not isClosed, a closed door
-    isClosed = not isClosed
+	-- this is where we swap the isClosed status!
+	-- i.e. if isClosed, we're adding an open door
+	-- and if not isClosed, a closed door
+	isClosed = not isClosed
 
 	local rside = nil
 	local nfdir = nil
@@ -278,12 +280,12 @@ function autoclose_doors.flip_door(pos, node, player, name, side, isClosed)
 		nfdir=ofdir + 1
 		if nfdir > 3 then nfdir = 0 end
 	end
-    local sound;
-    if isClosed then
-        sound = 'close'
-    else
-        sound = 'open'
-    end
+	local sound;
+	if isClosed then
+		sound = 'close'
+	else
+		sound = 'open'
+	end
 	minetest.sound_play("autoclose_doors_"..sound, {
 		pos=pos,
         max_hear_distance = 5,
@@ -291,7 +293,7 @@ function autoclose_doors.flip_door(pos, node, player, name, side, isClosed)
 	})
     -- XXX: does the top half have to remember open/closed too?
 	minetest.add_node({x=pos.x, y=pos.y+1, z=pos.z}, { name =  "autoclose_doors:"..name.."_top_"..rside, param2=nfdir})
-    minetest.add_node(pos, { name = "autoclose_doors:"..name.."_bottom_"..rside, param2=nfdir })
+	minetest.add_node(pos, { name = "autoclose_doors:"..name.."_bottom_"..rside, param2=nfdir })
 
 	if isClosed then
 		minetest.get_meta(pos):set_string("closed", "true")
